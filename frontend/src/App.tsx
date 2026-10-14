@@ -9,7 +9,6 @@ function App() {
 
   return (
     <>
-      <h1 className='text-2xl text-center'>hello</h1>
       <section id="center">
         <div className="hero">
           <img src={heroImg} className="base" width="170" height="179" alt="" />
