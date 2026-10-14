@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import MainLayout from "../features/layout/MainLayout";
-import Home from "../features/Dashboard/Home";
+import Dashboard from "../features/Dashboard/Dashboard";
 import Products from "../features/products/pages/Products";
 import Movements from "../features/movements/pages/Movements";
 import NotFound from "../features/layout/NotFound";
@@ -12,7 +12,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        Component: Home,
+        Component: Dashboard,
       },
 
       {

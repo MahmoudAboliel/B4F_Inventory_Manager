@@ -3,9 +3,11 @@ import MainHeader from "./MainHeader"
 
 const MainLayout = () => {
   return (
-    <main>
+    <main className="dark:bg-slate-900/97 w-full overflow-hidden min-h-screen">
         <MainHeader />
-        <Outlet />
+        <div className="container p-4 mx-auto">
+            <Outlet />
+        </div>
     </main>
   )
 }

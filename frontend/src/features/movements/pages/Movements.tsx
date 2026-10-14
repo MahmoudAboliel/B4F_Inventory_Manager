@@ -34,6 +34,7 @@ export default function MovementsPage() {
     note: string;
   }) => {
     try {
+      console.log('data: =>', data)
       await addMovement(data);
 
       setShowForm(false);
@@ -102,6 +103,15 @@ export default function MovementsPage() {
         ),
       },
       {
+        key: "note",
+        header: "Note",
+        sortable: true,
+        align: "center",
+        render: (movement) => (
+          <span className="font-semibold tabular-nums">{movement.note || "--"}</span>
+        ),
+      },
+      {
         key: "date",
         header: "Date",
         sortable: true,
@@ -113,7 +123,7 @@ export default function MovementsPage() {
   );
 
   return (
-    <section className="mx-auto w-full max-w-7xl space-y-6 p-4 sm:p-6">
+    <section className="w-full space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
           Movements
@@ -144,7 +154,7 @@ export default function MovementsPage() {
         subtitle={`${movements.length} movements`}
         columns={columns}
         data={movements}
-        rowKey="_id"
+        rowKey="id"
         loading={loading}
         emptyMessage="No movements found."
         searchPlaceholder="Search movements"

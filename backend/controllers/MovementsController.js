@@ -7,7 +7,7 @@ export const getAllMovements = async (req, res) => {
       _sort = "createdAt",
       _order = "DESC",
       _start = 0,
-      _end = 10,
+      _end = 100,
       type,
       productName,
     } = req.query;

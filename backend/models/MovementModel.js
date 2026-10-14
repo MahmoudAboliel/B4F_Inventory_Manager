@@ -20,11 +20,22 @@ const movementSchema = new mongoose.Schema(
     amount: { type: Number, required: true },
     date: { type: Date, default: new Date(), required: true },
   },
-  { timestamps: true },
   {
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
+    timestamps: true,
+    versionKey: false,
+    id: true,
+    toJSON: {
+      transform(doc, ret) {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+      },
+    },
   },
+  // {
+  //   toJSON: { virtuals: true },
+  //   toObject: { virtuals: true },
+  // },
 );
 // movementSchema.pre("findOneAndUpdate", function (next) {
 //   this.set({ updateAt: Date.now() });

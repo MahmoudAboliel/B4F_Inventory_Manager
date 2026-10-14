@@ -5,25 +5,25 @@ const MainHeader = () => {
         {
             id: 1,
             href: "/",
-            label: "Home"
+            label: "Dashboard"
         },
         {
-            id: 1,
+            id: 2,
             href: "/products",
             label: "Products"
         },
         {
-            id: 1,
+            id: 3,
             href: "/movements",
             label: "Movements"
         },
     ]
   return (
-    <header className="flex sticky top-0 z-100  h-12 justify-between items-center p-3 border-b border-b-slate-200 shadow-sm">
-      <Link to={"/"} className="font-medium text-sm">
-        MD
+    <header className="flex sticky inset-0 z-100  h-12 justify-between items-center p-3 dark:bg-slate-900 dark:text-white shadow-sm shadow-slate-700">
+      <Link to={"/"} className="font-medium text-lg text-indigo-600">
+        Inventra
       </Link>
-      <ul className="flex items-center gap-2">
+      <ul className="flex items-center gap-2 text-slate-300">
         {routes.map((route) => (
           <li key={route.id}>
             <NavLink
@@ -31,8 +31,8 @@ const MainHeader = () => {
               className={({ isActive }) =>
                 [
                   isActive
-                    ? "font-medium text-sm"
-                    : "font-normal text-xs hover:font-medium hover:text-sm duration-150",
+                    ? "font-medium text-[16px]"
+                    : "font-normal text-sm hover:font-medium hover:text-sm duration-150",
                 ].join(" ")
               }
             >
@@ -41,6 +41,7 @@ const MainHeader = () => {
           </li>
         ))}
       </ul>
+      <div className="px-2 py-1 rounded-lg bg-indigo-600 text-sm">Sign in</div>
     </header>
   );
 }

@@ -4,7 +4,12 @@ import mongoose from "mongoose";
 
 export const getAllProductsController = async (req, res) => {
   try {
-    const { _sort = "id", _order = "ASC", _start = 0, _end = 10 } = req.query;
+    const {
+      _sort = "createdAt",
+      _order = "DESC",
+      _start = 0,
+      _end = 100,
+    } = req.query;
     const start = Number(_start);
     const end = Number(_end);
     const limit = end - start;
@@ -14,6 +19,7 @@ export const getAllProductsController = async (req, res) => {
       .sort({ [sortField]: sortOrder })
       .skip(start)
       .limit(limit);
+    // console.log(sort)
     const total = await Product.countDocuments();
     res.set(
       "Content-Range",

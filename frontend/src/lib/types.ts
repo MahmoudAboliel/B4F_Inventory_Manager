@@ -10,14 +10,15 @@ export interface Product {
 }
 
 export interface Movement {
-  _id: string;
+  id: string;
   productId: {
-    _id: string;
+    id: string;
     name: string;
   };
   type: "in" | "out";
   amount: number;
   date: string | Date;
+  note?: string;
   createdAt: string | Date;
   updatedAt: string | Date;
 }

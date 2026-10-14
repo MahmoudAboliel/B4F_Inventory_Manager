@@ -36,7 +36,8 @@ export default function Form({ products, onClose, onSubmit }: FormProps) {
     const selectedProduct = products.find(
       (product) => product.id === productId,
     );
-
+    console.log({productId, amount, date})
+    console.log(selectedProduct)
     if (
       type === "out" &&
       selectedProduct &&
@@ -58,10 +59,10 @@ export default function Form({ products, onClose, onSubmit }: FormProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg- p-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/40"
+        className="w-full max-w-lg  max-h-[90dvh] overflow-y-auto no-scrollbar rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/40"
       >
         <div className="border-b border-slate-200 px-5 py-4 dark:border-slate-800">
           <h2 className="text-base font-semibold text-slate-800 dark:text-slate-100">
@@ -85,11 +86,14 @@ export default function Form({ products, onClose, onSubmit }: FormProps) {
               className={inputClassName}
             >
               <option value="">Select a product</option>
-              {products.map((product) => (
-                <option key={product.id} value={product.id}>
-                  {product.name}
-                </option>
-              ))}
+              {products.map((product) => {
+                console.log(product);
+                return (
+                  <option key={product.id} value={product.id}>
+                    {product.name}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
