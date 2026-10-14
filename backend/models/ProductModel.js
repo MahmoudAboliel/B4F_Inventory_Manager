@@ -2,9 +2,10 @@ import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
   {
-    name: { type: String },
-    quantity: { type: Number },
-    minQuantity: { type: Number },
+    name: { type: String, required:true },
+    quantity: { type: Number ,required:true  },
+    minimumQuantity: { type: Number , required:true },
+    imageUrl :{type: String ,required:false},
     deletedAt: {
       type: Date,
       default: null,
@@ -29,9 +30,9 @@ productSchema.statics.updateStock = async function (
     throw new Error("Amount must be greater than zero");
   }
 
-  if (processType === "add") {
+  if (processType === "in") {
     product.quantity += amount;
-  } else if (processType === "withdraw") {
+  } else if (processType === "out") {
     if (product.quantity < amount) {
       throw new Error("Insufficient stock");
     }

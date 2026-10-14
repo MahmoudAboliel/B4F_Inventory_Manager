@@ -10,7 +10,7 @@ export const getAllProductsController = async (req, res) => {
     const limit = end - start;
     const sortField = _sort === "id" ? "_id" : _sort;
     const sortOrder = _order.toUpperCase() === "DESC" ? -1 : 1;
-    const products = await Product.find()
+    const products = await Product.find({ deletedAt: null })
       .sort({ [sortField]: sortOrder })
       .skip(start)
       .limit(limit);
@@ -46,7 +46,12 @@ export const getProductByIdController = async (req, res) => {
 
 export const createProductController = async (req, res) => {
   try {
-    const product = await Product.create(req.body);
+    const { name, minimumQuantity, imageUrl } = req.body;
+
+    if (!name || !minimumQuantity || !imageUrl) {
+      return res.status(400).json({ message: "Insufficient Data" });
+    }
+    const product = await Product.create({ name, minimumQuantity, imageUrl, quantity: 0 });
     res.status(201).json(product);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -55,7 +60,10 @@ export const createProductController = async (req, res) => {
 
 export const updateProductController = async (req, res) => {
   try {
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+
+    const { name, minimumQuantity, imageUrl } = req.body;
+
+    const product = await Product.findByIdAndUpdate(req.params.id, { name, minimumQuantity, imageUrl }, {
       new: true,
       runValidators: true,
     });
@@ -70,7 +78,10 @@ export const updateProductController = async (req, res) => {
 
 export const deleteProductController = async (req, res) => {
   try {
-    const product = await Product.findByIdAndDelete(req.params.id);
+    const product = await Product.findByIdAndUpdate(req.params.id, { deletedAt: new Date() }, {
+      new: true,
+      runValidators: true,
+    });
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -79,3 +90,5 @@ export const deleteProductController = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// {data:product, message: " created successfully", status: 201 }
