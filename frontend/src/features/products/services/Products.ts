@@ -19,7 +19,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
     ? response
     : response.data;
 
-  return products.filter((product) => product.deletedAt !== null);
+  return products.filter((product) => product.deletedAt === null);
 };
 
 export const getProductById = async (

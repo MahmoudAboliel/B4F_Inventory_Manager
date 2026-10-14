@@ -7,7 +7,13 @@ import React, {
   type ChangeEvent,
   type CSSProperties,
 } from "react";
-import type { Column, DataTableProps, RowAction, RowId, SortState } from "./types";
+import type {
+  Column,
+  DataTableProps,
+  RowAction,
+  RowId,
+  SortState,
+} from "./types";
 
 /* ================================================================== */
 /*  الأيقونات (SVG مضمّنة — بدون أي مكتبة خارجية)                      */
@@ -99,7 +105,7 @@ interface ActionsMenuProps<T> {
 function ActionsMenu<T>({
   row,
   actions,
-  label = "إجراءات",
+  label = "Actions",
 }: ActionsMenuProps<T>) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -236,18 +242,18 @@ export default function DataTable<T extends object>({
   data,
   rowKey,
   loading = false,
-  emptyMessage = "لا توجد بيانات لعرضها",
+  emptyMessage = "No data available",
+  searchPlaceholder = "Search...",
+  actionsHeader = "Actions",
   title,
   subtitle,
   toolbar,
   searchable = true,
-  searchPlaceholder = "بحث...",
   filters = [],
   selectable = false,
   onSelectionChange,
   bulkActions = [],
   rowActions = [],
-  actionsHeader = "إجراءات",
   pagination = true,
   defaultPageSize = 10,
   pageSizeOptions = [5, 10, 25, 50],
@@ -338,7 +344,7 @@ export default function DataTable<T extends object>({
       if (av instanceof Date && bv instanceof Date)
         return (av.getTime() - bv.getTime()) * dir;
       return (
-        String(av).localeCompare(String(bv), "ar", { numeric: true }) * dir
+        String(av).localeCompare(String(bv), "en", { numeric: true }) * dir
       );
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -350,23 +356,23 @@ export default function DataTable<T extends object>({
     ? sorted.slice((page - 1) * pageSize, page * pageSize)
     : sorted;
 
-const currentPageResetDeps = { search, filterValues, pageSize };
-if (
-  prevPageResetDeps === null ||
-  prevPageResetDeps.search !== currentPageResetDeps.search ||
-  prevPageResetDeps.filterValues !== currentPageResetDeps.filterValues ||
-  prevPageResetDeps.pageSize !== currentPageResetDeps.pageSize
-) {
-  setPrevPageResetDeps(currentPageResetDeps);
-  setPage(1);
-}
-//   useEffect(() => {
-//     setPage(1);
-//   }, [search, filterValues, pageSize]);
+  const currentPageResetDeps = { search, filterValues, pageSize };
+  if (
+    prevPageResetDeps === null ||
+    prevPageResetDeps.search !== currentPageResetDeps.search ||
+    prevPageResetDeps.filterValues !== currentPageResetDeps.filterValues ||
+    prevPageResetDeps.pageSize !== currentPageResetDeps.pageSize
+  ) {
+    setPrevPageResetDeps(currentPageResetDeps);
+    setPage(1);
+  }
+  //   useEffect(() => {
+  //     setPage(1);
+  //   }, [search, filterValues, pageSize]);
 
-//   useEffect(() => {
-//     if (page > totalPages) setPage(totalPages);
-//   }, [page, totalPages]);
+  //   useEffect(() => {
+  //     if (page > totalPages) setPage(totalPages);
+  //   }, [page, totalPages]);
 
   /* ---------------- التحديد ---------------- */
   const pageIds = pageRows.map(getRowId);
@@ -419,9 +425,9 @@ if (
   /* ================================================================ */
   return (
     <div
-      // dir="ltr"
+      dir="ltr"
       className={`w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm
-                  dark:border-slate-800 dark:bg-slate-900 ${className}`}
+              dark:border-slate-800 dark:bg-slate-900 ${className}`}
     >
       {/* ---------- الرأس ---------- */}
       {(title || toolbar) && (
@@ -447,29 +453,26 @@ if (
         <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 px-4 py-3 dark:border-slate-800 sm:px-5">
           {searchable && (
             <div className="relative min-w-50 flex-1 sm:max-w-xs">
-              <Icon
-                name="search"
-                className="pointer-events-none absolute inset-s-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-              />
               <input
                 type="text"
+                dir="ltr"
                 value={search}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setSearch(e.target.value)
                 }
                 placeholder={searchPlaceholder}
-                className="h-9 w-full rounded-lg border border-slate-200 bg-white ps-9 pe-9 text-sm text-slate-700
-                           placeholder:text-slate-400 outline-none transition
-                           focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100
-                           dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200
-                           dark:focus:border-indigo-500 dark:focus:ring-indigo-950"
+                className="h-9 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-9 text-left text-sm text-slate-700 placeholder:text-slate-400 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-indigo-500 dark:focus:ring-indigo-950"
+              />
+              <Icon
+                name="search"
+                className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
               />
               {search && (
                 <button
                   type="button"
                   onClick={() => setSearch("")}
-                  className="absolute inset-e-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-slate-400 transition
-                             hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
+                  aria-label="Clear search"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
                 >
                   <Icon name="x" className="h-3.5 w-3.5" strokeWidth={2.2} />
                 </button>
@@ -494,7 +497,7 @@ if (
                              focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100
                              dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
                 >
-                  <option value="">{f.label}: الكل</option>
+                  <option value="">{f.label}: All</option>
                   {f.options.map((o) => (
                     <option key={o.value} value={o.value}>
                       {o.label}
@@ -518,7 +521,7 @@ if (
                          dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
             >
               <Icon name="x" className="h-3.5 w-3.5" strokeWidth={2.2} />
-              مسح
+              clear
             </button>
           )}
         </div>
@@ -528,7 +531,7 @@ if (
       {selectable && selected.size > 0 && (
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-indigo-100 bg-indigo-50/70 px-4 py-2.5 dark:border-indigo-900/50 dark:bg-indigo-950/40 sm:px-5">
           <span className="text-sm font-medium text-indigo-700 dark:text-indigo-300">
-            تم تحديد {selected.size} عنصر
+            {selected.size} item(s) selected
           </span>
           <div className="flex items-center gap-2">
             {bulkActions.map((action, i) => (
@@ -756,7 +759,7 @@ if (
       {pagination && !loading && sorted.length > 0 && (
         <div className="flex flex-col items-center justify-between gap-3 border-t border-slate-200 px-4 py-3 dark:border-slate-800 sm:flex-row sm:px-5">
           <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-            <span>عرض</span>
+            <span>display</span>
             <select
               value={pageSize}
               onChange={(e) => setPageSize(Number(e.target.value))}
@@ -771,7 +774,7 @@ if (
               ))}
             </select>
             <span className="tabular-nums">
-              من إجمالي{" "}
+              from{" "}
               <b className="text-slate-700 dark:text-slate-200">
                 {sorted.length}
               </b>{" "}
@@ -781,14 +784,14 @@ if (
 
           <div className="flex items-center gap-1">
             <PageBtn disabled={page === 1} onClick={() => setPage(1)}>
-              الأولى
+              first
             </PageBtn>
             <PageBtn
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
-              aria-label="السابق"
+              aria-label="Previous"
             >
-              <Icon name="chevronRight" className="h-4 w-4" />
+              <Icon name="chevronLeft" className="h-4 w-4" />
             </PageBtn>
 
             {getPageNumbers(page, totalPages).map((p, i) =>
@@ -816,15 +819,15 @@ if (
             <PageBtn
               disabled={page === totalPages}
               onClick={() => setPage((p) => p + 1)}
-              aria-label="التالي"
+              aria-label="Next"
             >
-              <Icon name="chevronLeft" className="h-4 w-4" />
+              <Icon name="chevronRight" className="h-4 w-4" />
             </PageBtn>
             <PageBtn
               disabled={page === totalPages}
               onClick={() => setPage(totalPages)}
             >
-              الأخيرة
+              Last
             </PageBtn>
           </div>
         </div>

@@ -1,7 +1,199 @@
-import React from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-const Products = () => {
-  return <div>Products</div>;
-};
+import DataTable from "../../../lib/DataTable/DataTable.tsx";
+import type { Column, RowAction } from "../../../lib/DataTable/types.ts";
 
-export default Products;
+import type { Product } from "../../../lib/types";
+import { getAllProducts } from "../services/Products.ts";
+
+interface ProductsPageProps {
+  onAddProduct?: () => void;
+  onEditProduct?: (product: Product) => void;
+  onDeleteProduct?: (product: Product) => void;
+}
+
+export default function ProductsPage({
+  onAddProduct,
+  onEditProduct,
+  onDeleteProduct,
+}: ProductsPageProps) {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const loadProducts = useCallback(async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const data = await getAllProducts();
+      setProducts(data.filter((product) => product.deletedAt == null));
+    } catch {
+      setError("Failed to load products. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadProducts();
+  }, [loadProducts]);
+
+  const columns = useMemo<Column<Product>[]>(
+    () => [
+      {
+        key: "name",
+        header: "Product",
+        sortable: true,
+        render: (product) => (
+          <div className="flex items-center gap-3">
+            {product.imageUrl ? (
+              <img
+                src={product.imageUrl}
+                alt={product.name}
+                className="h-10 w-10 rounded-lg border border-slate-200 object-cover"
+              />
+            ) : (
+              <div className="grid h-10 w-10 place-items-center rounded-lg bg-slate-100 text-sm font-semibold text-slate-500">
+                {product.name.charAt(0).toUpperCase()}
+              </div>
+            )}
+
+            <span className="font-medium text-slate-800 dark:text-slate-100">
+              {product.name}
+            </span>
+          </div>
+        ),
+      },
+      {
+        key: "quantity",
+        header: "Quantity",
+        sortable: true,
+        align: "center",
+        render: (product) => (
+          <span className="font-semibold tabular-nums">{product.quantity}</span>
+        ),
+      },
+      {
+        key: "minimumQuantity",
+        header: "Minimum stock",
+        sortable: true,
+        align: "center",
+      },
+      {
+        key: "stockStatus",
+        header: "Stock status",
+        accessor: (product) =>
+          product.quantity < product.minimumQuantity ? "Low stock" : "In stock",
+        sortable: true,
+        align: "center",
+        render: (product) => {
+          const isLow = product.quantity < product.minimumQuantity;
+
+          return (
+            <span
+              className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
+                isLow
+                  ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
+                  : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+              }`}
+            >
+              {isLow ? "Low stock" : "In stock"}
+            </span>
+          );
+        },
+      },
+      {
+        key: "createdAt",
+        header: "Created",
+        sortable: true,
+        sortAccessor: (product) => new Date(product.createdAt),
+        render: (product) => new Date(product.createdAt).toLocaleDateString(),
+      },
+    ],
+    [],
+  );
+
+  const rowActions = useMemo<RowAction<Product>[]>(
+    () => [
+      {
+        label: "Edit",
+        onClick: (product) => onEditProduct?.(product),
+        hidden: () => !onEditProduct,
+      },
+      {
+        label: "Delete",
+        className: "text-red-600 hover:bg-red-50 dark:text-red-400",
+        onClick: (product) => onDeleteProduct?.(product),
+        hidden: () => !onDeleteProduct,
+      },
+    ],
+    [onEditProduct, onDeleteProduct],
+  );
+
+  return (
+    <section className="mx-auto w-full max-w-7xl space-y-6 p-4 sm:p-6">
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+          Products
+        </h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          Manage your inventory and monitor stock levels.
+        </p>
+      </div>
+
+      {error && (
+        <div
+          role="alert"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+        >
+          <span>{error}</span>
+          <button
+            type="button"
+            onClick={() => void loadProducts()}
+            className="font-semibold underline"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      <DataTable<Product>
+        title="All products"
+        subtitle={`${products.length} active products`}
+        columns={columns}
+        data={products}
+        rowKey="id"
+        loading={loading}
+        emptyMessage="No active products found."
+        searchPlaceholder="Search For Products"
+        searchable
+        pagination
+        defaultPageSize={10}
+        pageSizeOptions={[5, 10, 25, 50]}
+        rowActions={rowActions}
+        toolbar={
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void loadProducts()}
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              Refresh
+            </button>
+
+            {onAddProduct && (
+              <button
+                type="button"
+                onClick={onAddProduct}
+                className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
+              >
+                + Add product
+              </button>
+            )}
+          </div>
+        }
+      />
+    </section>
+  );
+}
