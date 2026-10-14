@@ -2,24 +2,27 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import DataTable from "../../../lib/DataTable/DataTable.tsx";
 import type { Column, RowAction } from "../../../lib/DataTable/types.ts";
+import type {
+  Product,
+  CreateProductInput,
+  UpdateProductInput,
+} from "../../../lib/types";
 
-import type { Product } from "../../../lib/types";
-import { getAllProducts } from "../services/Products.ts";
+import {
+  getAllProducts,
+  addProduct,
+  updateProduct,
+  deleteProduct,
+} from "../services/Products.ts";
 
-interface ProductsPageProps {
-  onAddProduct?: () => void;
-  onEditProduct?: (product: Product) => void;
-  onDeleteProduct?: (product: Product) => void;
-}
+import ProductForm from "../components/ProductForm.tsx";
 
-export default function ProductsPage({
-  onAddProduct,
-  onEditProduct,
-  onDeleteProduct,
-}: ProductsPageProps) {
+export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [formOpen, setFormOpen] = useState(false);
+  const [activeProduct, setActiveProduct] = useState<Product | undefined>();
 
   const loadProducts = useCallback(async () => {
     setLoading(true);
@@ -38,6 +41,51 @@ export default function ProductsPage({
   useEffect(() => {
     void loadProducts();
   }, [loadProducts]);
+
+  const handleOpenAdd = () => {
+    setActiveProduct(undefined);
+    setFormOpen(true);
+  };
+
+  const handleOpenEdit = (product: Product) => {
+    setActiveProduct(product);
+    setFormOpen(true);
+  };
+
+  const handleCloseForm = () => {
+    setFormOpen(false);
+    setActiveProduct(undefined);
+  };
+
+  const handleSaveProduct = async (
+    data: CreateProductInput | UpdateProductInput,
+  ) => {
+    if (activeProduct) {
+      await updateProduct(activeProduct.id, data);
+    } else {
+      await addProduct(data);
+    }
+
+    handleCloseForm();
+    await loadProducts();
+  };
+
+  const handleDeleteProduct = async (product: Product) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${product.name}"?`,
+    );
+
+    if (!confirmed) return;
+
+    setError("");
+
+    try {
+      await deleteProduct(product.id);
+      await loadProducts();
+    } catch {
+      setError(`Failed to delete "${product.name}". Please try again.`);
+    }
+  };
 
   const columns = useMemo<Column<Product>[]>(
     () => [
@@ -118,28 +166,47 @@ export default function ProductsPage({
     () => [
       {
         label: "Edit",
-        onClick: (product) => onEditProduct?.(product),
-        hidden: () => !onEditProduct,
+        onClick: handleOpenEdit,
       },
       {
         label: "Delete",
         className: "text-red-600 hover:bg-red-50 dark:text-red-400",
-        onClick: (product) => onDeleteProduct?.(product),
-        hidden: () => !onDeleteProduct,
+        onClick: (product) => void handleDeleteProduct(product),
       },
     ],
-    [onEditProduct, onDeleteProduct],
+    [],
   );
 
   return (
     <section className="mx-auto w-full max-w-7xl space-y-6 p-4 sm:p-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-          Products
-        </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Manage your inventory and monitor stock levels.
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            Products
+          </h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            Manage your inventory and monitor stock levels.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => void loadProducts()}
+            disabled={loading}
+            className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+          >
+            Refresh
+          </button>
+
+          <button
+            type="button"
+            onClick={handleOpenAdd}
+            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
+          >
+            + Add product
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -166,34 +233,21 @@ export default function ProductsPage({
         rowKey="id"
         loading={loading}
         emptyMessage="No active products found."
-        searchPlaceholder="Search For Products"
+        searchPlaceholder="Search products"
         searchable
         pagination
         defaultPageSize={10}
         pageSizeOptions={[5, 10, 25, 50]}
         rowActions={rowActions}
-        toolbar={
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => void loadProducts()}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-            >
-              Refresh
-            </button>
-
-            {onAddProduct && (
-              <button
-                type="button"
-                onClick={onAddProduct}
-                className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
-              >
-                + Add product
-              </button>
-            )}
-          </div>
-        }
       />
+
+      {formOpen && (
+        <ProductForm
+          product={activeProduct}
+          onSubmit={handleSaveProduct}
+          onCancel={handleCloseForm}
+        />
+      )}
     </section>
   );
 }

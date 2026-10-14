@@ -1,14 +1,13 @@
-
 {
   "products": [
     {
       "id": "1",
-      "name": "Laptop",
+      "name": "Lenovo-Laptop",
       "quantity": 8,
       "minimumQuantity": 5,
       "imageUrl": "https://placehold.co/100x100?text=Laptop",
       "createdAt": "2026-10-01T10:00:00.000Z",
-      "updatedAt": "2026-10-01T10:00:00.000Z",
+      "updatedAt": "2026-10-14T18:49:37.837Z",
       "deletedAt": null
     },
     {
