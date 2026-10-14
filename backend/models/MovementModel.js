@@ -1,11 +1,13 @@
 import mongoose from "mongoose";
+import Product from "./ProductModel.js";
 const movementSchema = new mongoose.Schema(
   {
     productId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",
-      required: true
+      required: true,
     },
+
     type: {
       type: String,
       required: true,
@@ -16,19 +18,18 @@ const movementSchema = new mongoose.Schema(
     },
     note: { type: String, required: false },
     amount: { type: Number, required: true },
-    date: { type: Date, default: Date.now },
-    createAt: { type: Date, default: Date.now },
-    updateAt: { type: Date, default: Date.now },
+    date: { type: Date, default: new Date(), required: true },
   },
+  { timestamps: true },
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   },
 );
-movementSchema.pre("findOneAndUpdate", function (next) {
-  this.set({ updateAt: Date.now() });
-  next();
-});
+// movementSchema.pre("findOneAndUpdate", function (next) {
+//   this.set({ updateAt: Date.now() });
+//   next();
+// });
 const Movement = mongoose.model("Movement", movementSchema);
 
 class MovementModel {
@@ -42,8 +43,10 @@ class MovementModel {
     return { movements, total };
   };
 
-  findAll = async () => {
-    return await Movement.find({});
+  findAll = async (movementQuery, sortField, sortOrder) => {
+    return await Movement.find(movementQuery)
+      .populate("productId", "name")
+      .sort({ [sortField]: sortOrder });
   };
 
   findById = async (id) => {
@@ -51,8 +54,19 @@ class MovementModel {
   };
 
   create = async (obj) => {
-    const movement = new Movement(obj);
-    return await movement.save();
+    const { productId, amount, type } = obj;
+    console.log("welcome");
+    const product = await Product.updateStock(productId, type, amount);
+    console.log("product model");
+    console.log(product);
+    if (product) {
+      const movement = new Movement(obj);
+      const savedMovement = await movement.save();
+      console.log(savedMovement);
+      return savedMovement;
+    } else {
+      throw new Error("Product not found or stock update failed");
+    }
   };
 
   update = async (id, obj) => {
