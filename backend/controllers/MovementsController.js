@@ -73,7 +73,7 @@ export const createMovement = async (req, res) => {
       res.status(201).json(movement);
     }
   } catch (error) {
-    res.status(400).json({ error: "bad" });
+    res.status(400).json({ error: error.message });
   }
 };
 
