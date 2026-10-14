@@ -51,9 +51,4 @@ const Product = mongoose.model("Product", productSchema);
 
 export default Product;
 
-// Function Calling
-// const updatedProduct = await Product.updateStock(
-//     productId,
-//     processType,
-//     amount
-// );
+
