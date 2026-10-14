@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 const movementSchema = new mongoose.Schema(
   {
-    product_id: {
-      type: String,
-      required: true,
-      default: () => `TEMP_PROD_${Math.floor(Math.random() * 10000)}`, //just for testing untie module products is ready
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true
     },
-    processType: {
+    type: {
       type: String,
       required: true,
       enum: {
@@ -14,6 +14,7 @@ const movementSchema = new mongoose.Schema(
         message: "The Type Of Process must is out or in",
       },
     },
+    note: { type: String, required: false },
     amount: { type: Number, required: true },
     date: { type: Date, default: Date.now },
     createAt: { type: Date, default: Date.now },
@@ -40,7 +41,7 @@ class MovementModel {
     const total = await Movement.countDocuments();
     return { movements, total };
   };
-  
+
   findAll = async () => {
     return await Movement.find({});
   };

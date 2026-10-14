@@ -15,6 +15,7 @@ export interface Movement {
   type: "in" | "out";
   amount: number;
   note?: string;
+  date: string | Date;
   createdAt: string | Date;
   updatedAt: string | Date;
 }
