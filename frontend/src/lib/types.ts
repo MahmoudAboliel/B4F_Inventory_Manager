@@ -6,6 +6,7 @@ export interface Product {
     imageUrl: string;
     createdAt: string | Date;
     updatedAt: string | Date;
+    deletedAt: string | Date | null;
 }
 
 export interface Movement {
@@ -13,6 +14,7 @@ export interface Movement {
   productId: string;
   type: "in" | "out";
   amount: number;
+  note?: string;
   createdAt: string | Date;
   updatedAt: string | Date;
 }
