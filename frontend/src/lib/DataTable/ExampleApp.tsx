@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import DataTable from "@/components/DataTable/DataTable";
-import type { Column } from "@/components/DataTable/types";
+import DataTable from "./DataTable";
+import type { Column } from "./types";
 
 /* ---------- الأنواع ---------- */
 
