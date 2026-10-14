@@ -49,7 +49,7 @@ export const createProductController = async (req, res) => {
     const { name, minimumQuantity, imageUrl } = req.body;
 
     if (!name || !minimumQuantity || !imageUrl) {
-      return res.status(400).json({ message: "Insufficient Data" });
+      return res.status(400).json({ message: "Insufficient Data  name, minimumQuantity, imageUrl"  });
     }
     const product = await Product.create({ name, minimumQuantity, imageUrl, quantity: 0 });
     res.status(201).json(product);

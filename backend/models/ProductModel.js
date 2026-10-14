@@ -2,10 +2,10 @@ import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
   {
-    name: { type: String, required:true },
-    quantity: { type: Number ,required:true  },
-    minimumQuantity: { type: Number , required:true },
-    imageUrl :{type: String ,required:false},
+    name: { type: String, required: true },
+    quantity: { type: Number, required: true },
+    minimumQuantity: { type: Number, required: true },
+    imageUrl: { type: String, required: false },
     deletedAt: {
       type: Date,
       default: null,
@@ -21,7 +21,6 @@ productSchema.statics.updateStock = async function (
   amount,
 ) {
   const product = await this.findById(productId);
-
   if (!product) {
     throw new Error("Product not found");
   }
@@ -36,7 +35,6 @@ productSchema.statics.updateStock = async function (
     if (product.quantity < amount) {
       throw new Error("Insufficient stock");
     }
-
     product.quantity -= amount;
   } else {
     throw new Error("Invalid process type");
