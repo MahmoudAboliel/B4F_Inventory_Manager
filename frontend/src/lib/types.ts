@@ -10,15 +10,18 @@ export interface Product {
 }
 
 export interface Movement {
-  id: string;
-  productId: string;
+  _id: string;
+  productId: {
+    _id: string;
+    name: string;
+  };
   type: "in" | "out";
   amount: number;
-  note?: string;
   date: string | Date;
   createdAt: string | Date;
   updatedAt: string | Date;
 }
+
 export type CreateProductInput = {
   name: string;
   minimumQuantity: number;
@@ -30,3 +33,11 @@ export type UpdateProductInput = {
   minimumQuantity: number;
   imageUrl?: string;
 };
+
+export interface CreateMovement {
+  productId: string;
+  type: "in" | "out";
+  amount: number;
+  date: string;
+  note?: string;
+}
