@@ -7,6 +7,9 @@ import type {
   CreateProductInput,
   UpdateProductInput,
 } from "../../../lib/types";
+import MoveForm from "../components/MoveForm.tsx";
+
+import { addMovement } from "../../movements/services/Movements.ts";
 
 import {
   getAllProducts,
@@ -23,6 +26,8 @@ export default function ProductsPage() {
   const [error, setError] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [activeProduct, setActiveProduct] = useState<Product | undefined>();
+  const [movementFormOpen, setMovementFormOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const loadProducts = useCallback(async () => {
     setLoading(true);
@@ -84,6 +89,26 @@ export default function ProductsPage() {
       await loadProducts();
     } catch {
       setError(`Failed to delete "${product.name}". Please try again.`);
+    }
+  };
+  const handleSaveMovement = async (movement: {
+    productId: string;
+    type: "in" | "out";
+    amount: number;
+    date: string;
+    note: string;
+  }) => {
+    setError("");
+
+    try {
+      await addMovement(movement);
+
+      setMovementFormOpen(false);
+      setSelectedProduct(null);
+
+      await loadProducts();
+    } catch {
+      setError("Failed to save movement. Please try again.");
     }
   };
 
@@ -165,6 +190,13 @@ export default function ProductsPage() {
   const rowActions = useMemo<RowAction<Product>[]>(
     () => [
       {
+        label: "Add Movement",
+        onClick: (product) => {
+          setSelectedProduct(product);
+          setMovementFormOpen(true);
+        },
+      },
+      {
         label: "Edit",
         onClick: handleOpenEdit,
       },
@@ -188,7 +220,6 @@ export default function ProductsPage() {
             Manage your inventory and monitor stock levels.
           </p>
         </div>
-
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -246,6 +277,17 @@ export default function ProductsPage() {
           product={activeProduct}
           onSubmit={handleSaveProduct}
           onCancel={handleCloseForm}
+        />
+      )}
+
+      {movementFormOpen && selectedProduct && (
+        <MoveForm
+          product={selectedProduct}
+          onClose={() => {
+            setMovementFormOpen(false);
+            setSelectedProduct(null);
+          }}
+          onSubmit={handleSaveMovement}
         />
       )}
     </section>
