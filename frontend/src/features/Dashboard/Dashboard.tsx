@@ -593,7 +593,7 @@ export default function DashboardPage() {
   );
 
   return (
-    <div dir="ltr" className="min-h-screen p-4 sm:p-6 lg:p-8">
+    <div dir="ltr" className="">
       <div className="mx-auto max-w-7xl space-y-6">
         {/* ============ Header ============ */}
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
