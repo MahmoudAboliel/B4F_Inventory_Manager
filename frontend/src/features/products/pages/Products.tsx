@@ -44,6 +44,7 @@ export default function ProductsPage() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadProducts();
   }, [loadProducts]);
   console.log(products)
@@ -191,6 +192,8 @@ export default function ProductsPage() {
     () => [
       {
         label: "Add Movement",
+        className:
+          "text-indigo-600 hover:bg-indigo-100 dark:text-indigo-400 border-b border-indigo-500",
         onClick: (product) => {
           setSelectedProduct(product);
           setMovementFormOpen(true);
@@ -198,11 +201,14 @@ export default function ProductsPage() {
       },
       {
         label: "Edit",
+        className:
+          "text-green-600 hover:bg-green-100 dark:text-green-400 border-b border-green-500",
         onClick: handleOpenEdit,
       },
       {
         label: "Delete",
-        className: "text-red-600 hover:bg-red-50 dark:text-red-400",
+        className:
+          "text-red-600 hover:bg-red-100 dark:text-red-400 border-b border-red-500",
         onClick: (product) => void handleDeleteProduct(product),
       },
     ],

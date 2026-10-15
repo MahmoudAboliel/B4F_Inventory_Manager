@@ -26,7 +26,7 @@ export default function Form({ products, onClose, onSubmit }: FormProps) {
   const labelClassName =
     "mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200";
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!productId || !amount || Number(amount) <= 0 || !date) {

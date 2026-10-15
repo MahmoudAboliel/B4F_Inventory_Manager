@@ -44,6 +44,7 @@ export default function MovementsPage() {
     }
   };
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadMovements();
   }, [loadMovements]);
 
@@ -88,7 +89,7 @@ export default function MovementsPage() {
                   : "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
               }`}
             >
-              {isIn ? "In" : "Out"}
+              {isIn ? "In 🡫" : "Out 🡩"}
             </span>
           );
         },
