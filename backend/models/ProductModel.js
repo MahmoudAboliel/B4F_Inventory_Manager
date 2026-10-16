@@ -56,6 +56,9 @@ productSchema.statics.updateStock = async function (
   return product;
 };
 
+productSchema.index({ deletedAt: 1 });
+productSchema.index({ quantity: 1, minimumQuantity: 1 });
+
 const Product = mongoose.model("Product", productSchema);
 
 export default Product;

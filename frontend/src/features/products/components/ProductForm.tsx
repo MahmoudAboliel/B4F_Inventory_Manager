@@ -25,6 +25,7 @@ export default function ProductForm({
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setName(product?.name ?? "");
     setMinimumQuantity(String(product?.minimumQuantity ?? 0));
     setImageUrl(product?.imageUrl ?? "");

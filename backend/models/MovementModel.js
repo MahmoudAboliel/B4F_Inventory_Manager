@@ -37,6 +37,9 @@ const movementSchema = new mongoose.Schema(
   //   toObject: { virtuals: true },
   // },
 );
+movementSchema.index({ date: -1 });
+movementSchema.index({ type: 1 });
+movementSchema.index({ productId: 1 });
 // movementSchema.pre("findOneAndUpdate", function (next) {
 //   this.set({ updateAt: Date.now() });
 //   next();
@@ -88,6 +91,94 @@ class MovementModel {
   };
   delete = async (id) => {
     return await Movement.findByIdAndDelete(id);
+  };
+
+  stats = async (sevenDaysAgo) => {
+    return await Movement.aggregate([
+      { $match: { date: { $gte: sevenDaysAgo } } },
+      {
+        $group: {
+          _id: "$type",
+          total: { $sum: "$amount" },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+  };
+
+  weeklyTrend = async (sevenDaysAgo) => {
+    return await Movement.aggregate([
+      { $match: { date: { $gte: sevenDaysAgo } } },
+      {
+        $group: {
+          _id: {
+            day: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+            type: "$type",
+          },
+          total: { $sum: "$amount" },
+        },
+      },
+    ]);
+  };
+
+  inOutboundRatio = async (match) => {
+    return await Movement.aggregate([
+      ...(Object.keys(match).length ? [{ $match: match }] : []),
+      { $group: { _id: "$type", total: { $sum: "$amount" } } },
+    ]);
+  };
+
+  topMoving = async (limit = 5) => {
+    return await Movement.aggregate([
+      {
+        $group: {
+          _id: "$productId",
+          Inbound: {
+            $sum: { $cond: [{ $eq: ["$type", "in"] }, "$amount", 0] },
+          },
+          Outbound: {
+            $sum: { $cond: [{ $eq: ["$type", "out"] }, "$amount", 0] },
+          },
+          total: { $sum: "$amount" },
+        },
+      },
+      { $sort: { total: -1 } },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: "products", // <-- your actual collection name (usually pluralized)
+          localField: "_id",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+      {
+        $project: {
+          _id: 0,
+          productId: "$_id",
+          name: "$product.name",
+          Inbound: 1,
+          Outbound: 1,
+          total: 1,
+          shortName: {
+            $cond: [
+              { $gt: [{ $strLenCP: "$product.name" }, 16] },
+              { $concat: [{ $substrCP: ["$product.name", 0, 16] }, "…"] },
+              "$product.name",
+            ],
+          },
+        },
+      },
+    ]);
+  };
+
+  recentMovements = async (limit = 6) => {
+    return await Movement.find()
+      .sort({ date: -1 })
+      .limit(limit)
+      .populate("productId", "name imageUrl")
+      .lean();
   };
 }
 

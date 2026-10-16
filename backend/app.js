@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 
+import dashboardRouter from "./routers/dashboardRouter.js";
 import movementRouter from "./routers/movementRouter.js";
 import productRouter from "./routers/productRouter.js";
 
@@ -14,6 +15,7 @@ app.use(
 
 app.use(express.json());
 
+app.use("/", dashboardRouter)
 app.use("/movements", movementRouter);
 app.use("/products", productRouter);
 
